@@ -7,17 +7,18 @@ const isDev = require('electron-is-dev')
 let mainWindow
 
 function createMainWindow() {
-  mainWindow = new BrowserWindow({ width: 900, height: 680 })
+  mainWindow = new BrowserWindow({ width: 900, height: 800, webPreferences: { nodeIntegration: true }, backgroundColor: '#000', titleBarStyle: 'hiddenInset' })
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`)
-  mainWindow.on('closed', () => (mainWindow = null))
+  mainWindow.on('closed', () => {
+    mainWindow = null
+    app.dock.hide()
+  })
 }
 
 app.on('ready', createMainWindow)
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit()
 })
 
 app.on('activate', () => {

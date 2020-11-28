@@ -1,0 +1,54 @@
+.Addons {
+  display: flex;
+  flex-flow: row;
+  height: 100%;
+  width: 100%;
+}
+
+.Addons-large {
+  flex: 0 0 300px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.Addons-table {
+  flex: 1 1 auto;
+  padding-right: 20px;
+  padding-bottom: 20px;
+}
+
+.Addons-table .MuiPaper-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.Addons-table .MuiPaper-root .MuiTabs-root {
+  flex: 0 0 48px;
+}
+
+.Addons-tabPanels {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.Addons-tabPanel {
+  height: 100%;
+}
+
+.Addons-small {
+  height: 100%;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.Addons-tabPanel .MuiBox-root {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  overflow-y: scroll;
+}

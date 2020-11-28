@@ -1,0 +1,27 @@
+#dragArea {
+  -webkit-app-region: drag;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35px;
+}
+
+.TukuiClient {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.TukuiClient-menu {
+  flex: 0 0 90px;
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.TukuiClient-addons {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
