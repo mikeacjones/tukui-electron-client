@@ -13,7 +13,7 @@ export default function SmallAddon(props) {
   return (
     <div className={`SmallAddon${(dummy) ? ' FlexDummy' : ''}`}>
       <div className="SmallAddon-image">
-        <img src={addon.screenshot_url} />
+        <img src={addon.screenshot_url} alt="" />
       </div>
       <div className="SmallAddon-content">
         <div className="SmallAddon-body">

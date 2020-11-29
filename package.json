@@ -1,9 +1,10 @@
 {
-  "name": "tukui-electron-client",
+  "name": "tukui-client",
   "description": "Electron Client for installing and managing addons hosted on Tukui",
   "author": "github.com/mikeacjones",
   "build": {
-    "appId": "net.mikej.personal.wow"
+    "appId": "net.mikej.personal.wow",
+    "productName": "Tukui Client"
   },
   "main": "public/electron.js",
   "homepage": "./",

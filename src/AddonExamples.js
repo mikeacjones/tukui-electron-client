@@ -1,4 +1,4 @@
-export default {
+const AddonExamples = {
   Retail: {
     availableAddons: {
       elvui: {
@@ -2248,3 +2248,5 @@ export default {
     },
   },
 }
+
+export default AddonExamples

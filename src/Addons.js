@@ -14,22 +14,58 @@ import { makeStyles } from '@material-ui/core/styles'
 import MenuItem from '@material-ui/core/MenuItem'
 
 export default function Addons(props) {
+
+  //#region Props
   const { addons } = props
 
   const [value, setValue] = React.useState(0)
   const [selectedCategory, setSelectedCategory] = React.useState('')
-  const [filteredAddons, setFilteredAddons] = React.useState(addons.all)
+  const [sortAddonKey, setSortAddonKey] = React.useState('name')
+  const [sortDropdownOpen, setSortDropdownOpen] = React.useState(false)
+  const [sortAscending, setSortAscending] = React.useState(true)
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
+  const filteredAddons = () =>
+    addons.all.filter((addon) => selectedCategory === '' || addon.category === selectedCategory).sort((a, b) => {
+      if (!a.hasOwnProperty(sortAddonKey) || !b.hasOwnProperty(sortAddonKey)) {
+        // property doesn't exist on either object
+        return 0;
+      }
+  
+      const varA = (typeof a[sortAddonKey] === 'string')
+        ? ((!isNaN(a[sortAddonKey]) && !isNaN(parseFloat(a[sortAddonKey]))) ? parseFloat(a[sortAddonKey]) : a[sortAddonKey].toUpperCase()) : a[sortAddonKey];
+      const varB = (typeof b[sortAddonKey] === 'string')
+        ? ((!isNaN(b[sortAddonKey]) && !isNaN(parseFloat(b[sortAddonKey]))) ? parseFloat(b[sortAddonKey]) : b[sortAddonKey].toUpperCase()) : b[sortAddonKey];
+
+  
+      let comparison = 0;
+      if (varA > varB) {
+        comparison = 1;
+      } else if (varA < varB) {
+        comparison = -1;
+      }
+
+      if (sortAscending) return comparison
+      else return comparison * -1
+    })
+  //#endregion
+
+  //#region Event handlers
+  const handleChange = (event, newValue) => setValue(newValue)
+  const handleCategoryChange = (event) => setSelectedCategory(event.target.value)
+
+  const handleSortChange = (event) => {
+    if (event.target.value === '') setSortAddonKey('name')
+    else setSortAddonKey(event.target.value)
   }
-
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value)
-    if (event.target.value === '') setFilteredAddons(addons.all)
-    else setFilteredAddons(addons.all.filter((addon) => addon.category === event.target.value))
+  const onSelectClose = (event) => {
+    let key = event.target.getAttribute('data-value')
+    if (key === sortAddonKey) setSortAscending(!sortAscending)
+    setSortDropdownOpen(false)
   }
+  const onSelectOpen = (event) => setSortDropdownOpen(true)
+  //#endregion
 
+  //#region TabPanel
   function TabPanel(props) {
     const { children, value, index, ...other } = props
 
@@ -64,6 +100,7 @@ export default function Addons(props) {
   }))
 
   const classes = useStyles()
+  //#endregion
 
   return (
     <div className="Addons">
@@ -79,15 +116,19 @@ export default function Addons(props) {
           </Tabs>
           <div className="Addons-tabPanels">
             <TabPanel value={value} index={0}>
-              {/*               <AddonTable addons={addons.availableAddons.all} />
-               */}
             </TabPanel>
             <TabPanel value={value} index={1}>
               <div className="Addons-small-container">
                 <div className="Addons-small-menu">
                   <FormControl variant="outlined" className={classes.formControl}>
                     <InputLabel id="category-filter-select-outlined-label">Category</InputLabel>
-                    <Select value={selectedCategory} labelId="category-filter-select-outlined-label" onChange={handleCategoryChange} id="category-filter" label="Category">
+                    <Select
+                      value={selectedCategory}
+                      labelId="category-filter-select-outlined-label"
+                      onChange={handleCategoryChange}
+                      id="category-filter"
+                      label="Category"
+                    >
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
@@ -98,23 +139,47 @@ export default function Addons(props) {
                         }, [])
                         .sort()
                         .map((addon) => (
-                          <MenuItem value={addon}>{addon}</MenuItem>
+                          <MenuItem value={addon} key={addon}>
+                            {addon}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl variant="outlined" className={classes.formControl}>
+                    <InputLabel id="addon-sort-select-outlined-label">Sort</InputLabel>
+                    <Select
+                      open={sortDropdownOpen}
+                      onOpen={onSelectOpen}
+                      onClose={onSelectClose}
+                      value={sortAddonKey}
+                      onChange={handleSortChange}
+                      labelId="addon-sort-select-outlined-label"
+                      id="addon-sort"
+                      label="Category"
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      {Object.keys(addons.elvui)
+                        .sort()
+                        .map((key) => (
+                          <MenuItem value={key} key={key} onClose={onSelectClose}>
+                            {key} {sortAscending ? '\u2191' : '\u2193'}
+                          </MenuItem>
                         ))}
                     </Select>
                   </FormControl>
                 </div>
                 <div className="Addons-small">
-                  {filteredAddons
-                    .sort((a, b) => b.downloads - a.downloads)
-                    .map((addon) => (
-                      <SmallAddon addon={addon} />
-                    ))}
-                    <SmallAddon dummy addon={{name: 'empty', downloads: 0}} />
-                    <SmallAddon dummy addon={{name: 'empty', downloads: 0}} />
-                    <SmallAddon dummy addon={{name: 'empty', downloads: 0}} />
-                    <SmallAddon dummy addon={{name: 'empty', downloads: 0}} />
-                    <SmallAddon dummy addon={{name: 'empty', downloads: 0}} />
-                    <SmallAddon dummy addon={{name: 'empty', downloads: 0}} />
+                  {filteredAddons().map((addon) => (
+                    <SmallAddon addon={addon} key={addon.id} />
+                  ))}
+                  <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />
+                  <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />
+                  <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />
+                  <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />
+                  <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />
+                  <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />
                 </div>
               </div>
             </TabPanel>

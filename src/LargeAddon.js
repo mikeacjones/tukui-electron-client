@@ -1,7 +1,6 @@
 import './LargeAddon.css'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
 
 export default function LargeAddon(props) {
   const { addon } = props
@@ -22,7 +21,7 @@ export default function LargeAddon(props) {
     <div className="LargeAddon">
       <Card className="LargeAddon-card">
         <div className="LargeAddon-image">
-          <img src={addon.screenshot_url} />
+          <img src={addon.screenshot_url} alt="" />
         </div>
         <div className="LargeAddon-content">
           <h1 className="LargeAddon-title">{addon.name}</h1>
