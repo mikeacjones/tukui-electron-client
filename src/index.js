@@ -9,6 +9,18 @@ const theme = createMuiTheme({
   palette: {
     type: 'dark',
     background: { default: '#222' },
+    primary: {
+      light: '#e6ceff',
+      main: '#b39ddb',
+      dark: '#836fa9',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#f8ffd7',
+      main: '#c5e1a5',
+      dark: '#94af76',
+      contrastText: '#000',
+    }
   },
   typography: {
     fontFamily: ['Roboto'],

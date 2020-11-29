@@ -8,10 +8,10 @@ function convertDownloadCount(count) {
 }
 
 export default function SmallAddon(props) {
-  const { addon } = props
+  const { addon, dummy } = props
 
   return (
-    <div className="SmallAddon">
+    <div className={`SmallAddon${(dummy) ? ' FlexDummy' : ''}`}>
       <div className="SmallAddon-image">
         <img src={addon.screenshot_url} />
       </div>

@@ -7,7 +7,7 @@ const isDev = require('electron-is-dev')
 let mainWindow
 
 function createMainWindow() {
-  mainWindow = new BrowserWindow({ width: 900, height: 800, webPreferences: { nodeIntegration: true }, backgroundColor: '#000', titleBarStyle: 'hiddenInset' })
+  mainWindow = new BrowserWindow({ width: 900, height: 900, webPreferences: { nodeIntegration: true }, backgroundColor: '#000', titleBarStyle: 'hiddenInset' })
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`)
   mainWindow.on('closed', () => {
     mainWindow = null
