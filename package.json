@@ -21,7 +21,7 @@
   },
   "main": "public/electron.js",
   "homepage": "./",
-  "version": "0.1.4-alpha",
+  "version": "0.1.5-alpha",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.1",
