@@ -6,6 +6,7 @@
     "productName": "Tukui Client",
     "afterSign": "electron-builder-notarize",
     "appId": "net.mikej.personal.wow",
+    "generateUpdatesFilesForAllChannels": true,
     "mac": {
       "hardenedRuntime": true,
       "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist",

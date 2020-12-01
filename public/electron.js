@@ -4,6 +4,7 @@ const isDev = require('electron-is-dev')
 const storage = require('electron-json-storage')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
+const { Notification } = require('electron')
 
 let mainWindow, trayWindow, tray
 
@@ -17,6 +18,9 @@ ipcMain.on('main', (event, eventName, arg1) => {
       })
       if (!autoUpdate && (!mainWindow || !mainWindow.isVisible())) app.quit()
     })
+  }
+  else if (eventName == "update_requested") {
+    autoUpdater.quitAndInstall()
   }
 })
 
@@ -136,9 +140,10 @@ app.on('activate', () => {
   }
 })
 app.on('ready-to-show', () => {
-  
   log.transports.file.level = 'debug'
   autoUpdater.logger = log
+  autoUpdater.channel = 'alpha'
+  autoUpdater.autoInstallOnAppQuit = false
   autoUpdater.checkForUpdatesAndNotify()
 })
 
@@ -146,4 +151,5 @@ autoUpdater.on('update-available', () => {
 })
 
 autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update-available')
 })

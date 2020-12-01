@@ -4,3 +4,8 @@
   left: 20px;
   bottom: 20px;
 }
+
+#UpdateClientButton {
+  margin-left: 10px;
+  font-size: 10px;
+}
