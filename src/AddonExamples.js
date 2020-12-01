@@ -1,6 +1,5 @@
 const AddonExamples = {
   Retail: {
-    availableAddons: {
       elvui: {
         name: 'ElvUI',
         author: 'Elv',
@@ -1585,10 +1584,8 @@ const AddonExamples = {
           changelog: 'https://www.tukui.org/addons.php?id=98&changelog',
         },
       ],
-    },
   },
   Classic: {
-    availableAddons: {
       elvui: {
         id: '2',
         name: 'ElvUI',
@@ -2245,7 +2242,6 @@ const AddonExamples = {
           donate_url: 'https://www.paypal.me/vuiaddon',
         },
       ],
-    },
   },
 }
 

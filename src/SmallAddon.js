@@ -23,7 +23,7 @@ export default function SmallAddon(props) {
         <div className="SmallAddon-footer">
           <GetAppIcon />
           <span>{convertDownloadCount(addon.downloads)}</span>
-          <span style={{marginLeft: '15px'}}>by {addon.author}</span>
+          <span className="SmallAddon-author">by {addon.author}</span>
         </div>
       </div>
     </div>

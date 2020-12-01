@@ -63,6 +63,7 @@ export default function Addons(props) {
 
   const handleSortChange = (event) => {
     if (event.target.value === '') setSortAddonKey('name')
+    if (event.target.value === '') setSortAddonKey('name')
     else setSortAddonKey(event.target.value)
   }
   const onSelectClose = (event) => {
@@ -113,8 +114,8 @@ export default function Addons(props) {
   return (
     <div className="Addons">
       <div className="Addons-large">
-        <LargeAddon addon={addons.elvui} />
-        <LargeAddon addon={addons.tukui} />
+        {addons?.elvui && <LargeAddon addon={addons.elvui} />}
+        {addons?.tukui && <LargeAddon addon={addons.tukui} />}
       </div>
       <div className="Addons-table">
         <Paper square>
@@ -124,7 +125,7 @@ export default function Addons(props) {
           </Tabs>
           <div className="Addons-tabPanels">
             <TabPanel value={value} index={0}>
-              {addons.all.filter((addon) => addon.localAddon).length === 0 ? <p style={{ fontStyle: 'italic' }}>Nothing to see here - Install some additional addons!</p> : <></>}
+              {addons && addons.all.filter((addon) => addon.localAddon).length === 0 ? <p>Nothing to see here - Install some additional addons!</p> : <></>}
             </TabPanel>
             <TabPanel value={value} index={1}>
               <div className="Addons-small-container">
@@ -141,7 +142,7 @@ export default function Addons(props) {
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
-                      {addons.all
+                      {addons && addons.all
                         .reduce((cats, addon) => {
                           if (!cats.includes(addon.category)) cats.push(addon.category)
                           return cats
@@ -169,7 +170,7 @@ export default function Addons(props) {
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
-                      {Object.keys(addons.elvui)
+                      {addons && Object.keys(addons.elvui)
                         .sort()
                         .map((key) => (
                           <MenuItem value={key} key={key} onClose={onSelectClose}>
@@ -180,7 +181,7 @@ export default function Addons(props) {
                   </FormControl>
                 </div>
                 <div className="Addons-small">
-                  {filteredAddons().map((addon) => (
+                  {addons && filteredAddons().map((addon) => (
                     <SmallAddon addon={addon} key={addon.id} />
                   ))}
                   <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />

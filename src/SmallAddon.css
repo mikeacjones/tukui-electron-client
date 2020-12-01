@@ -12,6 +12,10 @@
   height: 100%;
 }
 
+.SmallAddon-author {
+  margin-left: 15px;
+}
+
 .SmallAddon-image img {
   width: 100%;
   height: 80px;

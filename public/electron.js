@@ -8,6 +8,26 @@ const { Notification } = require('electron')
 
 let mainWindow, trayWindow, tray
 
+const startup = () => {
+  if (!app.getLoginItemSettings().wasOpenedAtLogin) createMainWindow()
+  else app.dock.hide()
+  createTrayWindow()
+  setOpenAtLogin()
+  if (!isDev) autoUpdater.checkForUpdates()
+}
+
+//#region Functions
+const setOpenAtLogin = () => {
+  storage.get('auto-update', (err, data) => {
+    const autoStart = err || data
+    app.setLoginItemSettings({
+      openAtLogin: autoStart,
+    })
+  })
+}
+//#endregion
+
+//#region Inter-app communication
 ipcMain.on('main', (event, eventName, arg1) => {
   if (eventName === 'icon_click') toggleMainWindow()
   else if (eventName === 'update_changed') {
@@ -18,20 +38,13 @@ ipcMain.on('main', (event, eventName, arg1) => {
       })
       if (!autoUpdate && (!mainWindow || !mainWindow.isVisible())) app.quit()
     })
-  }
-  else if (eventName == "update_requested") {
+  } else if (eventName === 'update_requested') {
+    autoUpdater.downloadUpdate()
+  } else if (eventName === 'update_install') {
     autoUpdater.quitAndInstall()
   }
 })
-
-const setOpenAtLogin = () => {
-  storage.get('auto-update', (err, data) => {
-    const autoStart = err || data
-    app.setLoginItemSettings({
-      openAtLogin: autoStart,
-    })
-  })
-}
+//#endregion
 
 //#region Main Window
 const allWindowsClosed = () => app.quit()
@@ -43,13 +56,6 @@ const mainWindowClosed = () => {
     else app.quit()
   })
 }
-const startup = () => {
-  if (!app.getLoginItemSettings().wasOpenedAtLogin) createMainWindow()
-  else app.dock.hide()
-  createTrayWindow()
-  setOpenAtLogin()
-  autoUpdater.checkForUpdates()
-}
 
 const createMainWindow = () => {
   if (mainWindow != null) {
@@ -59,7 +65,7 @@ const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1550,
     height: 900,
-    webPreferences: { nodeIntegration: true, enableRemoteModule: true, devTools: !isDev },
+    webPreferences: { nodeIntegration: true, enableRemoteModule: true, devTools: isDev, webSecurity: false },
     backgroundColor: '#000',
     titleBarStyle: 'hiddenInset',
   })
@@ -131,6 +137,7 @@ const getTrayWindowPosition = () => {
 }
 //#endregion
 
+//#region App events
 app.on('ready', startup)
 app.on('window-all-closed', allWindowsClosed)
 app.on('activate', () => {
@@ -143,13 +150,16 @@ app.on('activate', () => {
 app.on('ready-to-show', () => {
   log.debug('ready-to-show')
   autoUpdater.logger = log
-  //autoUpdater.autoInstallOnAppQuit = false
 })
+//#endregion
 
+//#region AutoUpdater events
 autoUpdater.on('update-available', () => {
-  autoUpdater.downloadUpdate()
+  //autoUpdater.downloadUpdate()
+  mainWindow.webContents.send('update-available')
 })
 
 autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update-available')
+  mainWindow.webContents.send('update-downloaded')
 })
+//#endregion
