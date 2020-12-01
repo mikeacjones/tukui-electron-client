@@ -3,17 +3,24 @@
   "description": "Electron Client for installing and managing addons hosted on Tukui",
   "author": "github.com/mikeacjones",
   "build": {
-    "appId": "net.mikej.personal.wow",
     "productName": "Tukui Client",
-    "publish": [{
-      "provider": "github",
-      "owner": "mikeacjones",
-      "repo": "tukui-electron-client"
-    }]
+    "afterSign": "electron-builder-notarize",
+    "appId": "net.mikej.personal.wow",
+    "mac": {
+      "hardenedRuntime": true,
+      "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "mikeacjones",
+          "repo": "tukui-electron-client"
+        }
+      ]
+    }
   },
   "main": "public/electron.js",
   "homepage": "./",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.1",
@@ -34,6 +41,7 @@
     "cross-env": "^7.0.2",
     "electron": "^11.0.3",
     "electron-builder": "^22.9.1",
+    "electron-builder-notarize": "^1.2.0",
     "wait-on": "^5.2.0"
   },
   "scripts": {

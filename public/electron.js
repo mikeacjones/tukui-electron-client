@@ -54,7 +54,7 @@ const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1550,
     height: 900,
-    webPreferences: { nodeIntegration: true, enableRemoteModule: true },
+    webPreferences: { nodeIntegration: true, enableRemoteModule: true, devTools: !isDev },
     backgroundColor: '#000',
     titleBarStyle: 'hiddenInset',
   })
