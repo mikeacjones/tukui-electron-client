@@ -5,7 +5,7 @@ const AddonExamples = {
         name: 'ElvUI',
         author: 'Elv',
         url: 'https://www.tukui.org/downloads/elvui-12.15.zip',
-        version: '12.15',
+        version: '12.16',
         changelog: 'https://www.tukui.org/ui/elvui/changelog',
         ticket: 'https://git.tukui.org/elvui/elvui/issues',
         git: 'https://git.tukui.org/elvui/elvui',

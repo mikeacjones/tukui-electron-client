@@ -14,7 +14,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import MenuItem from '@material-ui/core/MenuItem'
 
 export default function Addons(props) {
-
   //#region Props
   const { addons } = props
 
@@ -25,28 +24,37 @@ export default function Addons(props) {
   const [sortAscending, setSortAscending] = React.useState(true)
 
   const filteredAddons = () =>
-    addons.all.filter((addon) => selectedCategory === '' || addon.category === selectedCategory).sort((a, b) => {
-      if (!a.hasOwnProperty(sortAddonKey) || !b.hasOwnProperty(sortAddonKey)) {
-        // property doesn't exist on either object
-        return 0;
-      }
-  
-      const varA = (typeof a[sortAddonKey] === 'string')
-        ? ((!isNaN(a[sortAddonKey]) && !isNaN(parseFloat(a[sortAddonKey]))) ? parseFloat(a[sortAddonKey]) : a[sortAddonKey].toUpperCase()) : a[sortAddonKey];
-      const varB = (typeof b[sortAddonKey] === 'string')
-        ? ((!isNaN(b[sortAddonKey]) && !isNaN(parseFloat(b[sortAddonKey]))) ? parseFloat(b[sortAddonKey]) : b[sortAddonKey].toUpperCase()) : b[sortAddonKey];
+    addons.all
+      .filter((addon) => selectedCategory === '' || addon.category === selectedCategory)
+      .sort((a, b) => {
+        if (!a.hasOwnProperty(sortAddonKey) || !b.hasOwnProperty(sortAddonKey)) {
+          // property doesn't exist on either object
+          return 0
+        }
 
-  
-      let comparison = 0;
-      if (varA > varB) {
-        comparison = 1;
-      } else if (varA < varB) {
-        comparison = -1;
-      }
+        const varA =
+          typeof a[sortAddonKey] === 'string'
+            ? !isNaN(a[sortAddonKey]) && !isNaN(parseFloat(a[sortAddonKey]))
+              ? parseFloat(a[sortAddonKey])
+              : a[sortAddonKey].toUpperCase()
+            : a[sortAddonKey]
+        const varB =
+          typeof b[sortAddonKey] === 'string'
+            ? !isNaN(b[sortAddonKey]) && !isNaN(parseFloat(b[sortAddonKey]))
+              ? parseFloat(b[sortAddonKey])
+              : b[sortAddonKey].toUpperCase()
+            : b[sortAddonKey]
 
-      if (sortAscending) return comparison
-      else return comparison * -1
-    })
+        let comparison = 0
+        if (varA > varB) {
+          comparison = 1
+        } else if (varA < varB) {
+          comparison = -1
+        }
+
+        if (sortAscending) return comparison
+        else return comparison * -1
+      })
   //#endregion
 
   //#region Event handlers
@@ -116,6 +124,7 @@ export default function Addons(props) {
           </Tabs>
           <div className="Addons-tabPanels">
             <TabPanel value={value} index={0}>
+              {addons.all.filter((addon) => addon.localAddon).length == 0 ? <p style={{ fontStyle: 'italic' }}>Nothing to see here - Install some additional addons!</p> : <></>}
             </TabPanel>
             <TabPanel value={value} index={1}>
               <div className="Addons-small-container">
