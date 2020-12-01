@@ -48,6 +48,7 @@ const startup = () => {
   else app.dock.hide()
   createTrayWindow()
   setOpenAtLogin()
+  autoUpdater.checkForUpdates()
 }
 
 const createMainWindow = () => {
@@ -102,7 +103,7 @@ const createTrayWindow = () => {
     },
   })
   trayWindow.loadURL(isDev ? 'http://localhost:3000/tray.html' : `file://${path.join(__dirname, '../build/tray.html')}`)
-  trayWindow.on('blur', toggleTrayWindow)
+  trayWindow.on('blur', () => trayWindow.hide())
 }
 
 const toggleTrayWindow = () => {
@@ -140,14 +141,13 @@ app.on('activate', () => {
   }
 })
 app.on('ready-to-show', () => {
-  log.transports.file.level = 'debug'
+  log.transports.file.level = 'info'
   autoUpdater.logger = log
-  autoUpdater.channel = 'alpha'
-  autoUpdater.autoInstallOnAppQuit = false
-  autoUpdater.checkForUpdatesAndNotify()
+  //autoUpdater.autoInstallOnAppQuit = false
 })
 
 autoUpdater.on('update-available', () => {
+  autoUpdater.downloadUpdate()
 })
 
 autoUpdater.on('update-downloaded', () => {
