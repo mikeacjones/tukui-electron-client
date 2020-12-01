@@ -136,15 +136,14 @@ app.on('activate', () => {
   }
 })
 app.on('ready-to-show', () => {
+  
   log.transports.file.level = 'debug'
   autoUpdater.logger = log
   autoUpdater.checkForUpdatesAndNotify()
 })
 
 autoUpdater.on('update-available', () => {
-  mainWindow.webContents.send('update-available')
 })
 
 autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update-downloaded')
 })
