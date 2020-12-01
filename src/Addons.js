@@ -124,7 +124,7 @@ export default function Addons(props) {
           </Tabs>
           <div className="Addons-tabPanels">
             <TabPanel value={value} index={0}>
-              {addons.all.filter((addon) => addon.localAddon).length == 0 ? <p style={{ fontStyle: 'italic' }}>Nothing to see here - Install some additional addons!</p> : <></>}
+              {addons.all.filter((addon) => addon.localAddon).length === 0 ? <p style={{ fontStyle: 'italic' }}>Nothing to see here - Install some additional addons!</p> : <></>}
             </TabPanel>
             <TabPanel value={value} index={1}>
               <div className="Addons-small-container">

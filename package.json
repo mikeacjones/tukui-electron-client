@@ -4,7 +4,12 @@
   "author": "github.com/mikeacjones",
   "build": {
     "appId": "net.mikej.personal.wow",
-    "productName": "Tukui Client"
+    "productName": "Tukui Client",
+    "publish": [{
+      "provider": "github",
+      "owner": "mikeacjones",
+      "repo": "tukui-electron-client"
+    }]
   },
   "main": "public/electron.js",
   "homepage": "./",
@@ -15,6 +20,7 @@
     "@material-ui/icons": "^4.9.1",
     "electron-is-dev": "^1.2.0",
     "electron-json-storage": "^4.3.0",
+    "electron-updater": "^4.3.5",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-scripts": "4.0.1",
