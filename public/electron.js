@@ -3,6 +3,7 @@ const path = require('path')
 const isDev = require('electron-is-dev')
 const storage = require('electron-json-storage')
 const { autoUpdater } = require('electron-updater')
+const log = require('electron-log')
 
 let mainWindow, trayWindow, tray
 
@@ -43,7 +44,6 @@ const startup = () => {
   else app.dock.hide()
   createTrayWindow()
   setOpenAtLogin()
-  autoUpdater.checkForUpdatesAndNotify()
 }
 
 const createMainWindow = () => {
@@ -134,4 +134,17 @@ app.on('activate', () => {
   } else {
     mainWindow.show()
   }
+})
+app.on('ready-to-show', () => {
+  log.transports.file.level = 'debug'
+  autoUpdater.logger = log
+  autoUpdater.checkForUpdatesAndNotify()
+})
+
+autoUpdater.on('update-available', () => {
+  mainWindow.webContents.send('update-available')
+})
+
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update-downloaded')
 })
