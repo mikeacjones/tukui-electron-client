@@ -141,7 +141,7 @@ app.on('activate', () => {
   }
 })
 app.on('ready-to-show', () => {
-  log.transports.file.level = 'info'
+  log.debug('ready-to-show')
   autoUpdater.logger = log
   //autoUpdater.autoInstallOnAppQuit = false
 })
