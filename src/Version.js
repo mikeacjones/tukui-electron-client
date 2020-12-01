@@ -1,4 +1,3 @@
-import { version } from 'react'
 import './Version.css'
 
 export default function Version() {
