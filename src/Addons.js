@@ -114,8 +114,8 @@ export default function Addons(props) {
   return (
     <div className="Addons">
       <div className="Addons-large">
-        {addons?.elvui && <LargeAddon addon={addons.elvui} />}
-        {addons?.tukui && <LargeAddon addon={addons.tukui} />}
+        {addons?.elvui && <LargeAddon addon={addons.elvui} disabled={addons?.installed} />}
+        {addons?.tukui && <LargeAddon addon={addons.tukui} disabled={addons?.installed} />}
       </div>
       <div className="Addons-table">
         <Paper square>
@@ -183,7 +183,7 @@ export default function Addons(props) {
                 </div>
                 <div className="Addons-small">
                   {addons && filteredAddons().map((addon) => (
-                    <SmallAddon addon={addon} key={addon.id} />
+                    <SmallAddon addon={addon} key={addon.id} disabled={addons?.installed} />
                   ))}
                   <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />
                   <SmallAddon dummy addon={{ name: 'empty', downloads: 0 }} />

@@ -1,9 +1,10 @@
 import './LargeAddon.css'
+import React from 'react'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 
 export default function LargeAddon(props) {
-  const { addon } = props
+  const { addon, disabled } = props
 
   let installButtonText, installButtonColor
   if (!addon.localAddon) {
@@ -30,7 +31,7 @@ export default function LargeAddon(props) {
             <div className="LargeAddon-info-available">Latest Version: {addon.version}</div>
           </div>
           <div className="LargeAddon-button">
-            <Button variant="outlined" color={installButtonColor}>
+            <Button variant="outlined" color={installButtonColor} disabled={disabled}>
               {installButtonText}
             </Button>
           </div>
