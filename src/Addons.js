@@ -114,8 +114,8 @@ export default function Addons(props) {
   return (
     <div className="Addons">
       <div className="Addons-large">
-        {addons?.elvui && <LargeAddon addon={addons.elvui} disabled={addons?.installed} />}
-        {addons?.tukui && <LargeAddon addon={addons.tukui} disabled={addons?.installed} />}
+        {addons?.elvui && <LargeAddon addon={addons.elvui} disabled={!addons?.installed} />}
+        {addons?.tukui && <LargeAddon addon={addons.tukui} disabled={!addons?.installed} />}
       </div>
       <div className="Addons-table">
         <Paper square>
