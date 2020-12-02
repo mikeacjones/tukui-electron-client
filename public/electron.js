@@ -141,7 +141,6 @@ const createMainWindow = () => {
       webSecurity: false,
     },
     backgroundColor: '#000',
-    titleBarStyle: 'hiddenInset',
   })
   mainWindow.loadURL(
     isDev
