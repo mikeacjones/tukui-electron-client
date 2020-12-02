@@ -6,20 +6,23 @@ const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const { FetchAddons, FetchInstalledAddons } = require('./TukuiService')
 
-let mainWindow, trayWindow, tray, lastAddonPull
+let mainWindow, trayWindow, tray, lastAddonPull, clientUpdateTimeout
 
 const startup = () => {
   autoUpdater.autoDownload = false
   if (!app.getLoginItemSettings().wasOpenedAtLogin) createMainWindow()
-  else app.dock.hide()
-  updateAddonInfo()
+  else {
+    app.dock.hide()
+    updateAddonInfo()
+  }
   createTrayWindow()
   setOpenAtLogin()
   if (!isDev) autoUpdater.checkForUpdates()
 }
 
+const clientUpdateInterval = 1000 * 60 * 10
 const updateAddonInterval = 1000 * 60
-const updateAddonInfo = () => {
+const updateAddonInfo = (repeat = true) => {
   FetchAddons((addons) => {
     try {
       const installedRetailAddons = FetchInstalledAddons('Retail')
@@ -77,11 +80,17 @@ const updateAddonInfo = () => {
             : addons.Classic.all,
         },
       }
-      if (mainWindow?.isVisible())
-        mainWindow.webContents.send('update-addons', result)
-      lastAddonPull = result
+
+      lastAddonPull = result ? result : lastAddonPull
     } catch {}
-    setTimeout(updateAddonInfo, updateAddonInterval)
+
+    try {
+      if (mainWindow?.isVisible())
+        mainWindow.webContents.send('update-addons', lastAddonPull)
+    } catch {}
+
+    if (clientUpdateTimeout) clearTimeout(clientUpdateTimeout)
+    clientUpdateTimeout = setTimeout(updateAddonInfo, updateAddonInterval)
   })
 }
 
@@ -111,6 +120,9 @@ ipcMain.on('main', (event, eventName, arg1) => {
     autoUpdater.downloadUpdate()
   } else if (eventName === 'update_install') {
     autoUpdater.quitAndInstall()
+  } else if (eventName === 'close_tray') {
+    trayWindow?.destroy()
+    tray?.destroy()
   }
 })
 //#endregion
@@ -148,10 +160,11 @@ const createMainWindow = () => {
       : `file://${path.join(__dirname, '../build/index.html')}`
   )
   mainWindow.on('closed', mainWindowClosed)
-  mainWindow.on('show', () => {
-    //app.dock().show();
-    mainWindow.webContents.send('update-addons', lastAddonPull)
+  mainWindow.on('ready-to-show', () => {
+    console.log('ready-to-show')
+    updateAddonInfo()
   })
+  mainWindow.on('show', () => {})
 }
 
 const toggleMainWindow = () => {
@@ -235,7 +248,6 @@ app.on('activate', () => {
     mainWindow.show()
   }
   app.dock.show()
-  mainWindow.webContents.send('update-addons', lastAddonPull)
 })
 app.on('ready-to-show', () => {
   log.debug('ready-to-show')
@@ -245,17 +257,25 @@ app.on('ready-to-show', () => {
 
 //#region AutoUpdater events
 autoUpdater.on('update-available', () => {
-  //autoUpdater.downloadUpdate()
-  if (mainWindow?.isVisible()) mainWindow.webContents.send('update-available')
-  else autoUpdater.downloadUpdate()
+  try {
+    if (mainWindow?.isVisible()) mainWindow.webContents.send('update-available')
+    else autoUpdater.downloadUpdate()
+  } catch {
+    setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
+  }
 })
 
 autoUpdater.on('update-downloaded', () => {
-  if (mainWindow?.isVisible()) mainWindow.webContents.send('update-downloaded')
-  else autoUpdater.quitAndInstall()
+  try {
+    if (mainWindow?.isVisible())
+      mainWindow.webContents.send('update-downloaded')
+    else autoUpdater.quitAndInstall()
+  } catch {
+    setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
+  }
 })
 
 autoUpdater.on('update-not-available', () => {
-  setTimeout(() => autoUpdater.checkForUpdates(), 1000 * 60 * 10)
+  setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
 })
 //#endregion

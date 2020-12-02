@@ -15,3 +15,7 @@ document.querySelector('#icon').addEventListener('click', () => {
 document.querySelector('#update').addEventListener('change', (event) => {
   ipcRenderer.send(CHANNEL_NAME, 'update_changed', event.target.checked )
 })
+
+document.querySelector('#trayExitButton').addEventListener('click', () => {
+  ipcRenderer.send(CHANNEL_NAME, 'close_tray')
+})

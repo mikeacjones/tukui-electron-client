@@ -46,7 +46,7 @@ export default function TukuiClient() {
         </FormControl>
       </div>
       <div className="TukuiClient-addons">
-        <Addons addons={addons[version]} version={version} />
+        <Addons addons={addons ? addons[version] : {}} version={version} />
       </div>
     </div>
   )
