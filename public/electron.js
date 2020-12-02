@@ -6,6 +6,9 @@ const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const { FetchAddons, FetchInstalledAddons } = require('./TukuiService')
 
+const clientUpdateInterval = 1000 * 60 * 10
+const updateAddonInterval = 1000 * 60
+
 log.transports.file.level = 'info'
 let mainWindow, trayWindow, tray, lastAddonPull, clientUpdateTimeout
 
@@ -18,11 +21,8 @@ const startup = () => {
   }
   createTrayWindow()
   setOpenAtLogin()
-  if (!isDev) autoUpdater.checkForUpdates()
+  checkForUClientUpdates()
 }
-
-const clientUpdateInterval = 1000 * 60 * 10
-const updateAddonInterval = 1000 * 60
 const updateAddonInfo = (repeat = true) => {
   FetchAddons((addons) => {
     try {
@@ -34,23 +34,17 @@ const updateAddonInfo = (repeat = true) => {
           installed: installedRetailAddons ? true : false,
           elvui: {
             ...addons.Retail.elvui,
-            localAddon: installedRetailAddons?.filter(
-              (addon) => addon.name === 'ElvUI'
-            )[0],
+            localAddon: installedRetailAddons?.filter((addon) => addon.name === 'ElvUI')[0],
           },
           tukui: {
             ...addons.Retail.tukui,
-            localAddon: installedRetailAddons?.filter(
-              (addon) => addon.name === 'Tukui'
-            )[0],
+            localAddon: installedRetailAddons?.filter((addon) => addon.name === 'Tukui')[0],
           },
           all: installedRetailAddons
             ? addons.Retail.all.map((addon) => {
                 return {
                   ...addon,
-                  localAddon: installedRetailAddons.filter(
-                    (a) => a.name === addon.name
-                  )[0],
+                  localAddon: installedRetailAddons.filter((a) => a.name === addon.name)[0],
                 }
               })
             : addons.Retail.all,
@@ -59,23 +53,17 @@ const updateAddonInfo = (repeat = true) => {
           installed: installedClassicAddons ? true : false,
           elvui: {
             ...addons.Classic.elvui,
-            localAddon: installedClassicAddons?.filter(
-              (addon) => addon.name === 'ElvUI'
-            )[0],
+            localAddon: installedClassicAddons?.filter((addon) => addon.name === 'ElvUI')[0],
           },
           tukui: {
             ...addons.Classic.tukui,
-            localAddon: installedClassicAddons?.filter(
-              (addon) => addon.name === 'Tukui'
-            )[0],
+            localAddon: installedClassicAddons?.filter((addon) => addon.name === 'Tukui')[0],
           },
           all: installedClassicAddons
             ? addons.Classic.all.map((addon) => {
                 return {
                   ...addon,
-                  localAddon: installedClassicAddons.filter(
-                    (a) => a.name === addon.name
-                  )[0],
+                  localAddon: installedClassicAddons.filter((a) => a.name === addon.name)[0],
                 }
               })
             : addons.Classic.all,
@@ -86,8 +74,7 @@ const updateAddonInfo = (repeat = true) => {
     } catch {}
 
     try {
-      if (mainWindow?.isVisible())
-        mainWindow.webContents.send('update-addons', lastAddonPull)
+      if (mainWindow?.isVisible()) mainWindow.webContents.send('update-addons', lastAddonPull)
     } catch {}
 
     if (clientUpdateTimeout) clearTimeout(clientUpdateTimeout)
@@ -155,11 +142,7 @@ const createMainWindow = () => {
     },
     backgroundColor: '#000',
   })
-  mainWindow.loadURL(
-    isDev
-      ? 'http://localhost:3000'
-      : `file://${path.join(__dirname, '../build/index.html')}`
-  )
+  mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`)
   mainWindow.on('closed', mainWindowClosed)
   mainWindow.on('ready-to-show', () => {
     console.log('ready-to-show')
@@ -204,11 +187,7 @@ const createTrayWindow = () => {
       enableRemoteModule: true,
     },
   })
-  trayWindow.loadURL(
-    isDev
-      ? 'http://localhost:3000/tray.html'
-      : `file://${path.join(__dirname, '../build/tray.html')}`
-  )
+  trayWindow.loadURL(isDev ? 'http://localhost:3000/tray.html' : `file://${path.join(__dirname, '../build/tray.html')}`)
   trayWindow.on('blur', () => trayWindow.hide())
 }
 
@@ -230,9 +209,7 @@ const showTrayWindow = () => {
 const getTrayWindowPosition = () => {
   const windowBounds = trayWindow.getBounds()
   const trayBounds = tray.getBounds()
-  const x = Math.round(
-    trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
-  )
+  const x = Math.round(trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2)
   const y = Math.round(trayBounds.y + trayBounds.height + 4)
 
   return { x: x, y: y }
@@ -261,24 +238,20 @@ autoUpdater.on('update-available', () => {
   try {
     if (mainWindow && mainWindow?.isVisible()) mainWindow.webContents.send('update-available')
     else autoUpdater.downloadUpdate()
-  } catch(err) {
-    log.error(err)
-    setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
-  }
+  } catch (err) {}
 })
 
 autoUpdater.on('update-downloaded', () => {
   try {
     if (mainWindow && mainWindow?.isVisible()) mainWindow.webContents.send('update-downloaded')
     else autoUpdater.quitAndInstall()
-  } catch(err) {
-    log.error(err)
-    setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
-  }
+  } catch (err) {}
 })
 
-autoUpdater.on('update-not-available', () => {
-  log.info('no update available')
-  setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
-})
+const checkForClientUpdates = () => {
+  try {
+    autoUpdater.checkForUpdates()
+  } catch {}
+  setTimeout(checkForClientUpdates, clientUpdateInterval)
+}
 //#endregion
