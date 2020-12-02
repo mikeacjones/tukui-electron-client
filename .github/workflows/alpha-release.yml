@@ -3,7 +3,7 @@ on:
     tags:
       - 'v*-alpha*'
 
-name: Create Alhpa Release
+name: Create Alpha Release
 
 jobs:
   build:
