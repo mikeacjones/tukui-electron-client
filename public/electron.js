@@ -10,6 +10,7 @@ const { FetchAddons, FetchInstalledAddons } = require('./TukuiService')
 let mainWindow, trayWindow, tray
 
 const startup = () => {
+  autoUpdater.autoDownload = false
   if (!app.getLoginItemSettings().wasOpenedAtLogin) createMainWindow()
   else app.dock.hide()
   updateAddonInfo()
