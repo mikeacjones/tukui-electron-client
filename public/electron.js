@@ -53,7 +53,8 @@ const updateAddonInfo = () => {
         }),
       },
     }
-    mainWindow.webContents.send('update-addons', result)
+    if (mainWindow?.isVisible())
+      mainWindow.webContents.send('update-addons', result)
     setTimeout(updateAddonInfo, updateAddonInterval)
   })
 }
@@ -113,6 +114,9 @@ const createMainWindow = () => {
   })
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`)
   mainWindow.on('closed', mainWindowClosed)
+  mainWinodw.on('show', () => {
+    app.dock().show()
+  })
 }
 
 const toggleMainWindow = () => {
