@@ -6,7 +6,6 @@ import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import Addons from './Addons'
-import { FetchAddons } from './TukuiService'
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -19,7 +18,6 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function TukuiClient() {
-  const updateAddonsInterval = 1000 * 60
   const [addons, setAddons] = React.useState({})
   const [version, setVersion] = React.useState('Retail')
   const classes = useStyles()
@@ -27,18 +25,12 @@ export default function TukuiClient() {
   const handleChange = (event) => {
     setVersion(event.target.value)
   }
-  const update = () => {
-    try {
-      FetchAddons((updatedAddons) => {
-        console.log(updatedAddons)
-        setAddons(updatedAddons)
-        setTimeout(update, updateAddonsInterval)
-      })
-    } catch {}
-  }
 
   React.useEffect(() => {
-    update()
+    const ipcRenderer = window.require('electron').ipcRenderer
+    ipcRenderer.on('update-addons', (event, data) => {
+      setAddons(data)
+    })
   }, [])
 
   return (

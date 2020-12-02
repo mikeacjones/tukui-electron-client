@@ -9,7 +9,7 @@ export default function LargeAddon(props) {
   if (!addon.localAddon) {
     installButtonText = 'Install'
     installButtonColor = 'primary'
-  } else if (addon.version !== addon.localAddon.version) {
+  } else if (addon.version !== addon.localAddon.Version) {
     installButtonText = 'Update'
     installButtonColor = 'secondary'
   } else {
@@ -26,7 +26,7 @@ export default function LargeAddon(props) {
         <div className="LargeAddon-content">
           <h1 className="LargeAddon-title">{addon.name}</h1>
           <div className="LargeAddon-info">
-            <div className="LargeAddon-info-installed">{addon.localAddon ? `Installed: ${addon.localAddon.version}` : ''}&nbsp;</div>
+            <div className="LargeAddon-info-installed">{addon.localAddon ? `Installed: ${addon.localAddon.Version}` : ''}&nbsp;</div>
             <div className="LargeAddon-info-available">Latest Version: {addon.version}</div>
           </div>
           <div className="LargeAddon-button">

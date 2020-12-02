@@ -21,11 +21,12 @@
   },
   "main": "public/electron.js",
   "homepage": "./",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.4",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.1",
     "@material-ui/icons": "^4.9.1",
+    "electron-fetch": "^1.7.2",
     "electron-is-dev": "^1.2.0",
     "electron-json-storage": "^4.3.0",
     "electron-log": "^4.3.0",
@@ -52,8 +53,8 @@
     "react-test": "react-scripts test --env=jsdom",
     "react-eject": "react-scripts eject",
     "electron-build": "electron-builder",
-    "release": "yarn react-build && yarn electron-builder --publish=always",
-    "build": "yarn react-build && yarn electron-build",
+    "release": "yarn react-build && rm -rf ./dist && yarn electron-builder --publish=always",
+    "build": "yarn react-build && rm -rf ./dist && yarn electron-build",
     "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {

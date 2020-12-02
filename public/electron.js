@@ -5,15 +5,56 @@ const storage = require('electron-json-storage')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const { Notification } = require('electron')
+const { FetchAddons, FetchInstalledAddons } = require('./TukuiService')
 
 let mainWindow, trayWindow, tray
 
 const startup = () => {
   if (!app.getLoginItemSettings().wasOpenedAtLogin) createMainWindow()
   else app.dock.hide()
+  updateAddonInfo()
   createTrayWindow()
   setOpenAtLogin()
   if (!isDev) autoUpdater.checkForUpdates()
+}
+
+const updateAddonInterval = 1000 * 60
+const updateAddonInfo = () => {
+  FetchAddons((addons) => {
+    const installedRetailAddons = FetchInstalledAddons('Retail')
+    const installedClassicAddons = FetchInstalledAddons('Classic')
+
+    const result = {
+      Retail: {
+        elvui: {
+          ...addons.Retail.elvui,
+          localAddon: installedRetailAddons.filter((addon) => addon.name === 'ElvUI')[0],
+        },
+        tukui: {
+          ...addons.Retail.tukui,
+          localAddon: installedRetailAddons.filter((addon) => addon.name === 'Tukui')[0],
+        },
+        all: addons.Retail.all.map((addon) => {
+          return { ...addon, localAddon: installedRetailAddons.filter((a) => a.name === addon.name)[0] }
+        }),
+      },
+      Classic: {
+        elvui: {
+          ...addons.Classic.elvui,
+          localAddon: installedClassicAddons.filter((addon) => addon.name === 'ElvUI')[0],
+        },
+        tukui: {
+          ...addons.Classic.tukui,
+          localAddon: installedClassicAddons.filter((addon) => addon.name === 'Tukui')[0],
+        },
+        all: addons.Classic.all.map((addon) => {
+          return { ...addon, localAddon: installedClassicAddons.filter((a) => a.name === addon.name)[0] }
+        }),
+      },
+    }
+    mainWindow.webContents.send('update-addons', result)
+    setTimeout(updateAddonInfo, updateAddonInterval)
+  })
 }
 
 //#region Functions

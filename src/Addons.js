@@ -25,7 +25,7 @@ export default function Addons(props) {
 
   const filteredAddons = () =>
     addons.all
-      .filter((addon) => selectedCategory === '' || addon.category === selectedCategory)
+      .filter((addon) => !addon.localAddon && (selectedCategory === '' || addon.category === selectedCategory))
       .sort((a, b) => {
         if (!a.hasOwnProperty(sortAddonKey) || !b.hasOwnProperty(sortAddonKey)) {
           // property doesn't exist on either object
