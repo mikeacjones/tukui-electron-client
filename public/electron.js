@@ -197,10 +197,16 @@ app.on('ready-to-show', () => {
 //#region AutoUpdater events
 autoUpdater.on('update-available', () => {
   //autoUpdater.downloadUpdate()
-  mainWindow.webContents.send('update-available')
+  if (mainWindow?.isVisible()) mainWindow.webContents.send('update-available')
+  else autoUpdater.downloadUpdate()
 })
 
 autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update-downloaded')
+  if (mainWindow?.isVisible()) mainWindow.webContents.send('update-downloaded')
+  else autoUpdater.quitAndInstall()
+})
+
+autoUpdater.on('update-not-available', () => {
+  setTimeout(() => autoUpdater.checkForUpdates(), 1000 * 60 * 10)
 })
 //#endregion
