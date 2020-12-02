@@ -234,6 +234,8 @@ app.on('activate', () => {
   } else {
     mainWindow.show()
   }
+  app.dock.show()
+  mainWindow.webContents.send('update-addons', lastAddonPull)
 })
 app.on('ready-to-show', () => {
   log.debug('ready-to-show')
