@@ -15,7 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 
 export default function Addons(props) {
   //#region Props
-  const { addons } = props
+  const { addons, version } = props
 
   const [value, setValue] = React.useState(0)
   const [selectedCategory, setSelectedCategory] = React.useState('')
@@ -125,8 +125,9 @@ export default function Addons(props) {
           </Tabs>
           <div className="Addons-tabPanels">
             <TabPanel value={value} index={0}>
-              {addons && addons.all.filter((addon) => addon.localAddon).length === 0 ? <p>Nothing to see here - Install some additional addons!</p> : <></>}
-            </TabPanel>
+              {addons?.installed ? <div>TEST</div> : <div className="italic">{`${version} does not appear to be installed`}</div>}
+{/*               {addons && addons.all.filter((addon) => addon.localAddon).length === 0 ? <p>Nothing to see here - Install some additional addons!</p> : <></>}
+ */}            </TabPanel>
             <TabPanel value={value} index={1}>
               <div className="Addons-small-container">
                 <div className="Addons-small-menu">

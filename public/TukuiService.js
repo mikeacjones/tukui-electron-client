@@ -44,7 +44,7 @@ function FetchInstalledAddons(version) {
     return addons.map((addon) => AddonToc(version, addon))
   } catch(err) {
     console.log(err)
-    return []
+    return undefined
   }
 }
 

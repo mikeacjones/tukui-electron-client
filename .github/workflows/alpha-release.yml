@@ -1,0 +1,22 @@
+on:
+  push:
+    tags:
+      - 'v*-alpha*'
+
+name: Create Alhpa Release
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: yarn
+      - run: yarn release
+        env:
+          APPLE_ID: ${{ secrets.APPLE_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
