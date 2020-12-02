@@ -6,6 +6,7 @@ const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const { FetchAddons, FetchInstalledAddons } = require('./TukuiService')
 
+log.transports.file.level = 'info'
 let mainWindow, trayWindow, tray, lastAddonPull, clientUpdateTimeout
 
 const startup = () => {
@@ -258,24 +259,26 @@ app.on('ready-to-show', () => {
 //#region AutoUpdater events
 autoUpdater.on('update-available', () => {
   try {
-    if (mainWindow?.isVisible()) mainWindow.webContents.send('update-available')
+    if (mainWindow && mainWindow?.isVisible()) mainWindow.webContents.send('update-available')
     else autoUpdater.downloadUpdate()
-  } catch {
+  } catch(err) {
+    log.error(err)
     setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
   }
 })
 
 autoUpdater.on('update-downloaded', () => {
   try {
-    if (mainWindow?.isVisible())
-      mainWindow.webContents.send('update-downloaded')
+    if (mainWindow && mainWindow?.isVisible()) mainWindow.webContents.send('update-downloaded')
     else autoUpdater.quitAndInstall()
-  } catch {
+  } catch(err) {
+    log.error(err)
     setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
   }
 })
 
 autoUpdater.on('update-not-available', () => {
+  log.info('no update available')
   setTimeout(() => autoUpdater.checkForUpdates(), clientUpdateInterval)
 })
 //#endregion
