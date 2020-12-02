@@ -1,0 +1,84 @@
+.Addons {
+  display: flex;
+  flex-flow: row;
+  height: 100%;
+  width: 100%;
+}
+
+.Addons-large {
+  flex: 0 0 300px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.Addons-table {
+  flex: 1 1 auto;
+  padding-right: 20px;
+  padding-bottom: 20px;
+}
+
+.Addons-table .MuiPaper-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+.Addons-table .MuiPaper-root .MuiTabs-root {
+  flex: 0 0 48px;
+}
+
+.Addons-tabPanels {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.Addons-tabPanel {
+  height: 100%;
+}
+
+.Addons-small-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  flex-flow: column;
+}
+
+.Addons-small-menu {
+  flex: 0 0 50px;
+  display: flex;
+  justify-content: flex-start;
+  padding-right: 50px;
+  border-bottom: 1px solid #555;;
+}
+
+.Addons-small {
+  overflow-y: scroll;
+  padding: 0;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+}
+
+.Addons-tabPanel .MuiBox-root {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  overflow-y: hidden;
+}
+
+.FlexDummy {
+  height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  color: transparent !important;
+}
+.FlexDummy img {
+  visibility: collapse;
+}

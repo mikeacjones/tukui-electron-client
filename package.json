@@ -1,30 +1,51 @@
 {
-  "name": "tukui-electron-client",
+  "name": "tukui-client",
   "description": "Electron Client for installing and managing addons hosted on Tukui",
   "author": "github.com/mikeacjones",
   "build": {
-    "appId": "net.mikej.personal.wow"
+    "productName": "Tukui Client",
+    "afterSign": "electron-builder-notarize",
+    "appId": "net.mikej.personal.wow",
+    "generateUpdatesFilesForAllChannels": true,
+    "mac": {
+      "hardenedRuntime": true,
+      "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "mikeacjones",
+          "repo": "tukui-electron-client"
+        }
+      ]
+    }
   },
   "main": "public/electron.js",
   "homepage": "./",
-  "version": "0.1.0",
+  "version": "1.0.0-alpha.19",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.1",
+    "@material-ui/icons": "^4.9.1",
+    "electron-fetch": "^1.7.2",
+    "electron-is-dev": "^1.2.0",
+    "electron-json-storage": "^4.3.0",
+    "electron-log": "^4.3.0",
+    "electron-updater": "^4.3.5",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
+    "react-scripts": "4.0.1",
+    "web-vitals": "^0.2.4"
+  },
+  "devDependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "concurrently": "^5.3.0",
     "cross-env": "^7.0.2",
-    "electron-is-dev": "^1.2.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-scripts": "4.0.1",
-    "wait-on": "^5.2.0",
-    "web-vitals": "^0.2.4"
-  },
-  "devDependencies": {
     "electron": "^11.0.3",
-    "electron-builder": "^22.9.1"
+    "electron-builder": "^22.9.1",
+    "electron-builder-notarize": "^1.2.0",
+    "wait-on": "^5.2.0"
   },
   "scripts": {
     "react-start": "react-scripts start",
@@ -32,8 +53,8 @@
     "react-test": "react-scripts test --env=jsdom",
     "react-eject": "react-scripts eject",
     "electron-build": "electron-builder",
-    "release": "yarn react-build && electron-builder --publish=always",
-    "build": "yarn react-build && yarn electron-build",
+    "release": "yarn react-build && rm -rf ./dist && yarn electron-builder --publish=always",
+    "build": "yarn react-build && rm -rf ./dist && yarn electron-build",
     "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {

@@ -1,0 +1,60 @@
+/* .LargeAddon {
+  background-color: #222;
+  color: #FFF;
+  padding: 15px;
+  width: 450px;
+  max-width: 450px;
+  border-radius: 5px;
+  text-align: left;
+  display: flex;
+}
+
+.LargeAddon-info * {
+  font-size: 20px;
+}
+
+.LargeAddon-image {
+  width: 50%;
+}
+
+.LargeAddon-image img {
+  height: auto;
+  width: 100%;
+}
+
+.LargeAddon-content {
+  display: flex;
+  vertical-align: top;
+  flex-direction: column;
+  margin-left: 10px;
+} */
+
+.LargeAddon {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.LargeAddon-card {
+  padding: 15px;
+}
+
+.LargeAddon-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.LargeAddon-image {
+  height: 150px;
+}
+
+.LargeAddon-image img {
+  height: auto;
+  width: 100%;
+}
+
+.LargeAddon-button {
+  margin-top: 10px;
+}
