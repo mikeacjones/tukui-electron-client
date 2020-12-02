@@ -11,7 +11,7 @@ export default function Version() {
   const ipcRenderer = window.require('electron').ipcRenderer
 
   const sendUpdateCommand = (event) => {
-    ipcRenderer.send('main', restart ? 'update_requested' : 'update_install')
+    ipcRenderer.send('main', !restart ? 'update_requested' : 'update_install')
     setDownloading(true)
     setButtonMessage('Downloading Update')
   }
