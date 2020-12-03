@@ -4698,6 +4698,14 @@ electron-is-dev@^1.2.0:
   resolved "https://registry.npmjs.org/electron-is-dev/-/electron-is-dev-1.2.0.tgz"
   integrity sha512-R1oD5gMBPS7PVU8gJwH6CtT0e6VSoD0+SzSnYpNm+dBkcijgA+K7VAMHDfnRq/lkKPZArpzplTW6jfiMYosdzw==
 
+electron-json-storage-sync@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/electron-json-storage-sync/-/electron-json-storage-sync-1.1.1.tgz#df751e8118076663d2df1cb2f1183845491a8d55"
+  integrity sha512-av6detBZCCrhTyMKNPEsibblMfGvyK68wNy1dtKwK5hBIALZ8C3O38KNDw2eHLDA+YpHEaYvbGjEJJ+ZhHKJXw==
+  dependencies:
+    mkdirp "^0.5.1"
+    rimraf "^2.6.1"
+
 electron-json-storage@^4.3.0:
   version "4.3.0"
   resolved "https://registry.npmjs.org/electron-json-storage/-/electron-json-storage-4.3.0.tgz"
@@ -10430,7 +10438,7 @@ rimraf@2.6.3:
   dependencies:
     glob "^7.1.3"
 
-rimraf@^2.5.1, rimraf@^2.5.4, rimraf@^2.6.3:
+rimraf@^2.5.1, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.3:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.7.1.tgz"
   integrity sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==

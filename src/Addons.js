@@ -24,6 +24,7 @@ export default function Addons(props) {
   const [sortAscending, setSortAscending] = React.useState(true)
 
   const filteredAddons = () =>
+    addons && addons.all ?
     addons.all
       .filter((addon) => !addon.localAddon && (selectedCategory === '' || addon.category === selectedCategory))
       .sort((a, b) => {
@@ -54,7 +55,7 @@ export default function Addons(props) {
 
         if (sortAscending) return comparison
         else return comparison * -1
-      })
+      }) : []
   //#endregion
 
   //#region Event handlers
@@ -143,7 +144,7 @@ export default function Addons(props) {
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
-                      {addons && addons.all
+                      {addons && addons.all && addons.all
                         .reduce((cats, addon) => {
                           if (!cats.includes(addon.category)) cats.push(addon.category)
                           return cats
@@ -171,7 +172,7 @@ export default function Addons(props) {
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
-                      {addons && Object.keys(addons.elvui)
+                      {addons && addons.elvui && Object.keys(addons.elvui)
                         .sort()
                         .map((key) => (
                           <MenuItem value={key} key={key} onClose={onSelectClose}>

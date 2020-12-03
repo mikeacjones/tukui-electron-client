@@ -34,18 +34,29 @@ export default function TukuiClient() {
   }, [])
 
   return (
-    <div className="TukuiClient">
-      <div id="dragArea"> </div>
-      <div className="TukuiClient-menu">
-        <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel id="game-version-select-outlined-label">Game Version</InputLabel>
-          <Select labelId="game-version-select-outlined-label" onChange={handleChange} value={version} id="game-version" label="Game Version">
-            <MenuItem value="Retail">Retail</MenuItem>
-            <MenuItem value="Classic">Classic</MenuItem>
+    <div className='TukuiClient'>
+      <div id='dragArea'> </div>
+      <div className='TukuiClient-menu'>
+        <FormControl variant='outlined' className={classes.formControl}>
+          <InputLabel id='game-version-select-outlined-label'>
+            Game Version
+          </InputLabel>
+          <Select
+            labelId='game-version-select-outlined-label'
+            onChange={handleChange}
+            value={version}
+            id='game-version'
+            label='Game Version'
+          >
+            {Object.keys(addons).map((client) =>
+              <MenuItem value={client} key={client}>
+                {client}
+              </MenuItem>
+            )}
           </Select>
         </FormControl>
       </div>
-      <div className="TukuiClient-addons">
+      <div className='TukuiClient-addons'>
         <Addons addons={addons ? addons[version] : {}} version={version} />
       </div>
     </div>

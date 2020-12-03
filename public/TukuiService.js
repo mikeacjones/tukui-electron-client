@@ -1,17 +1,24 @@
 const fetch = require('electron-fetch').default
 const { readdirSync } = require('fs')
-const versionLocations = require('./VersionLocation')
+const GetClientVersions = require('./VersionLocation')
 const AddonToc = require('./AddonToc')
 
-async function FetchAddons(callback) {
-  let retailAddons, classicAddons, elvui, tukui
+async function FetchAddons(provider) {
+  switch (provider) {
+    case 'Classic':
+      return await FetchClassicAddons()
+    case 'Retail':
+    default:
+      return await FetchRetailAddons()
+  }
+}
+
+async function FetchRetailAddons() {
+  let retailAddons, elvui, tukui
 
   await fetch('https://tukui.org/client-api.php?addons=all')
     .then((res) => res.json())
     .then((res) => (retailAddons = res))
-  await fetch('https://tukui.org/client-api.php?classic-addons=all')
-    .then((res) => res.json())
-    .then((res) => (classicAddons = res))
   await fetch('https://tukui.org/client-api.php?ui=elvui')
     .then((res) => res.json())
     .then((res) => (elvui = res))
@@ -19,18 +26,25 @@ async function FetchAddons(callback) {
     .then((res) => res.json())
     .then((res) => (tukui = res))
 
-  callback({
-    Retail: {
-      all: retailAddons,
-      elvui: elvui,
-      tukui: tukui,
-    },
-    Classic: {
-      all: classicAddons.filter((addon) => parseInt(addon.id) > 2),
-      elvui: classicAddons.filter((addon) => addon.id === '2')[0],
-      tukui: classicAddons.filter((addon) => addon.id === '1')[0],
-    },
-  })
+  return {
+    elvui: elvui,
+    tukui: tukui,
+    all: retailAddons,
+  }
+}
+
+async function FetchClassicAddons() {
+  let classicAddons
+
+  await fetch('https://tukui.org/client-api.php?classic-addons=all')
+    .then((res) => res.json())
+    .then((res) => (classicAddons = res))
+
+  return {
+    all: classicAddons.filter((addon) => parseInt(addon.id) > 2),
+    elvui: classicAddons.filter((addon) => addon.id === '2')[0],
+    tukui: classicAddons.filter((addon) => addon.id === '1')[0],
+  }
 }
 
 const getDirectories = (source) =>
@@ -38,14 +52,17 @@ const getDirectories = (source) =>
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
 
-function FetchInstalledAddons(version) {
-  try {
-    const addons = getDirectories(versionLocations.mac[version])
-    return addons.map((addon) => AddonToc(version, addon))
-  } catch(err) {
-    console.log(err)
-    return undefined
-  }
+function FetchInstalledAddons() {
+  const versions = GetClientVersions()
+  let result = {}
+  Object.keys(versions).forEach((client) => {
+    if (versions[client].installed) {
+      result[client] = getDirectories(versions[client].path).map((addon) =>
+        AddonToc(versions[client].path, addon)
+      )
+    }
+  })
+  return result
 }
 
 module.exports = { FetchAddons, FetchInstalledAddons }
