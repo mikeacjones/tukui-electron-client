@@ -21,7 +21,7 @@ const startup = () => {
   }
   createTrayWindow()
   setOpenAtLogin()
-  checkForUClientUpdates()
+  checkForClientUpdates()
 }
 const updateAddonInfo = (repeat = true) => {
   FetchAddons((addons) => {
