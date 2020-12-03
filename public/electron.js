@@ -88,6 +88,7 @@ const setOpenAtLogin = () => {
     const autoStart = err || data
     app.setLoginItemSettings({
       openAtLogin: autoStart,
+      openAsHidden: autoStart
     })
   })
 }
