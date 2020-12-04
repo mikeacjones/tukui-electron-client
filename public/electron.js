@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Tray, ipcMain } = require('electron')
 const path = require('path')
 const isDev = require('electron-is-dev')
-const storage = require('electron-json-storage')
+const storage = require('electron-json-storage-sync')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const { FetchAddons, FetchInstalledAddons } = require('./TukuiService')
@@ -15,113 +15,48 @@ let mainWindow, trayWindow, tray, lastAddonPull, clientUpdateTimeout
 
 const startup = () => {
   autoUpdater.autoDownload = false
-  if (!app.getLoginItemSettings().wasOpenedAtLogin) createMainWindow()
-  else {
-    app.dock.hide()
-    updateAddonInfo()
-  }
+  mainWindowStartup()
+  updateAddonInfo()
   createTrayWindow()
   setOpenAtLogin()
   checkForClientUpdates()
+}
+const mainWindowStartup = () => {
+  if (app.getLoginItemSettings().wasOpenedAtLogin) return
+  const result = storage.has('doing-background-update')
+  if (result.status && result.data) {
+    app.dock.hide()
+    return
+  }
+  createMainWindow()
 }
 const updateAddonInfo = async (repeat = true) => {
   try {
     const versions = GetClientVersions()
     let result = {}
     for (var client of Object.keys(versions)) {
-      console.log(client)
       result[client] = { installed: versions[client].installed }
       if (!versions[client].installed) continue
-      result[client] = { ...result[client], ...(await FetchAddons(versions[client].provider)) }
+      result[client] = {
+        ...result[client],
+        ...(await FetchAddons(versions[client].provider)),
+      }
     }
     lastAddonPull = result
     if (mainWindow?.isVisible())
       mainWindow.webContents.send('update-addons', lastAddonPull)
-  } catch(err) {
-    console.log(err)
-  }
-  //#region
-  /*   FetchAddons((addons) => {
-    try {
-      const versions = GetClientVersions()
-      let addon
-
-      FetchInstalledAddons('Retail', (installedRetailAddons) => {
-        FetchInstalledAddons('Classic', (installedClassicAddons) => {
-          const result = {
-            Retail: {
-              installed: installedRetailAddons ? true : false,
-              elvui: {
-                ...addons.Retail.elvui,
-                localAddon: installedRetailAddons?.filter(
-                  (addon) => addon.name === 'ElvUI'
-                )[0],
-              },
-              tukui: {
-                ...addons.Retail.tukui,
-                localAddon: installedRetailAddons?.filter(
-                  (addon) => addon.name === 'Tukui'
-                )[0],
-              },
-              all: installedRetailAddons
-                ? addons.Retail.all.map((addon) => {
-                    return {
-                      ...addon,
-                      localAddon: installedRetailAddons.filter(
-                        (a) => a.name === addon.name
-                      )[0],
-                    }
-                  })
-                : addons.Retail.all,
-            },
-            Classic: {
-              installed: installedClassicAddons ? true : false,
-              elvui: {
-                ...addons.Classic.elvui,
-                localAddon: installedClassicAddons?.filter(
-                  (addon) => addon.name === 'ElvUI'
-                )[0],
-              },
-              tukui: {
-                ...addons.Classic.tukui,
-                localAddon: installedClassicAddons?.filter(
-                  (addon) => addon.name === 'Tukui'
-                )[0],
-              },
-              all: installedClassicAddons
-                ? addons.Classic.all.map((addon) => {
-                    return {
-                      ...addon,
-                      localAddon: installedClassicAddons.filter(
-                        (a) => a.name === addon.name
-                      )[0],
-                    }
-                  })
-                : addons.Classic.all,
-            },
-          }
-
-          lastAddonPull = result ? result : lastAddonPull
-          try {
-            if (mainWindow?.isVisible())
-              mainWindow.webContents.send('update-addons', lastAddonPull)
-          } catch {}
-        })
-      })
-    } catch {} */
-  //#endregion
+  } catch (err) {}
   if (clientUpdateTimeout) clearTimeout(clientUpdateTimeout)
   clientUpdateTimeout = setTimeout(updateAddonInfo, updateAddonInterval)
 }
 
 //#region Functions
 const setOpenAtLogin = () => {
-  storage.get('auto-update', (err, data) => {
-    const autoStart = err || data
-    app.setLoginItemSettings({
-      openAtLogin: autoStart,
-      openAsHidden: autoStart,
-    })
+  let autoUpdate = storage.get('auto-update')
+  autoUpdate = autoUpdate.success ? autoUpdate.data || true : true
+  app.setLoginItemSettings({
+    openAtLogin: autoUpdate,
+    openAsHidden: autoUpdate,
   })
 }
 //#endregion
@@ -131,12 +66,12 @@ ipcMain.on('main', (event, eventName, arg1) => {
   if (eventName === 'icon_click') toggleMainWindow()
   else if (eventName === 'update_changed') {
     const autoUpdate = arg1
-    storage.set('auto-update', autoUpdate, () => {
-      app.setLoginItemSettings({
-        openAtLogin: autoUpdate,
-      })
-      if (!autoUpdate && (!mainWindow || !mainWindow.isVisible())) app.quit()
+    storage.set('auto-update', { checked: autoUpdate })
+    app.setLoginItemSettings({
+      openAtLogin: autoUpdate,
+      openAsHidden: autoUpdate,
     })
+    if (!autoUpdate && (!mainWindow || !mainWindow.isVisible())) app.quit()
   } else if (eventName === 'update_requested') {
     autoUpdater.downloadUpdate()
   } else if (eventName === 'update_install') {
@@ -152,11 +87,17 @@ ipcMain.on('main', (event, eventName, arg1) => {
 const allWindowsClosed = () => app.quit()
 const mainWindowClosed = () => {
   mainWindow = null
-
-  storage.get('auto-update', (err, obj) => {
-    if (err || obj) app.dock.hide()
-    else app.quit()
-  })
+  const autoUpdate = storage.get('auto-update')
+  console.log(autoUpdate)
+  if (
+    autoUpdate.status &&
+    (autoUpdate.data === true || autoUpdate.data.checked)
+  )
+    app.dock.hide()
+  else if (autoUpdate.status && !autoUpdate.data) app.dock.hide()
+  else {
+    app.quit()
+  }
 }
 
 const createMainWindow = () => {
@@ -183,7 +124,6 @@ const createMainWindow = () => {
   )
   mainWindow.on('closed', mainWindowClosed)
   mainWindow.on('ready-to-show', () => {
-    console.log('ready-to-show')
     updateAddonInfo()
   })
   mainWindow.on('show', () => {})
@@ -264,7 +204,7 @@ const getTrayWindowPosition = () => {
 app.on('ready', startup)
 app.on('window-all-closed', allWindowsClosed)
 app.on('activate', () => {
-  if (mainWindow === null) {
+  if (!mainWindow || mainWindow === null) {
     createMainWindow()
   } else {
     mainWindow.show()
@@ -290,7 +230,10 @@ autoUpdater.on('update-downloaded', () => {
   try {
     if (mainWindow && mainWindow?.isVisible())
       mainWindow.webContents.send('update-downloaded')
-    else autoUpdater.quitAndInstall()
+    else {
+      storage.set('doing-background-update', true)
+      autoUpdater.quitAndInstall()
+    }
   } catch (err) {}
 })
 

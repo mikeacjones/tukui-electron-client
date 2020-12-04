@@ -1,12 +1,12 @@
 const { ipcRenderer } = require('electron')
-const storage = require('electron-json-storage');
+const storage = require('electron-json-storage-sync');
 
 const CHANNEL_NAME = 'main'
 
-storage.get('auto-update', (err, obj) => {
-  if (err) return;
-  document.querySelector('#update').checked = obj
-})
+let autoUpdate = storage.get('auto-update')
+if (autoUpdate.status) {
+  document.querySelector('#update').checked = autoUpdate.data === true || autoUpdate.data.checked === undefined || autoUpdate.data.checked
+}
 
 document.querySelector('#icon').addEventListener('click', () => {
   ipcRenderer.send(CHANNEL_NAME, 'icon_click')
