@@ -22,14 +22,19 @@ const startup = () => {
   checkForClientUpdates()
 }
 const mainWindowStartup = () => {
-  if (app.getLoginItemSettings().wasOpenedAtLogin) return
+  if (app.getLoginItemSettings().wasOpenedAtLogin) {
+    app.dock.hide()
+    return
+  }
   const result = storage.has('doing-background-update')
   if (result.status && result.data) {
+    storage.remove('doing-background-update')
     app.dock.hide()
     return
   }
   createMainWindow()
 }
+
 const updateAddonInfo = async (repeat = true) => {
   try {
     const versions = GetClientVersions()
@@ -195,7 +200,6 @@ const getTrayWindowPosition = () => {
     trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
   )
   const y = Math.round(trayBounds.y + trayBounds.height + 4)
-
   return { x: x, y: y }
 }
 //#endregion
@@ -232,6 +236,9 @@ autoUpdater.on('update-downloaded', () => {
       mainWindow.webContents.send('update-downloaded')
     else {
       storage.set('doing-background-update', true)
+      app.setLoginItemSettings({
+        openAsHidden: true,
+      })
       autoUpdater.quitAndInstall()
     }
   } catch (err) {}
