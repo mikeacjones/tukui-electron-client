@@ -1,5 +1,6 @@
 const fetch = require('electron-fetch').default
 const { readdirSync } = require('fs')
+const path = require('path')
 const GetClientVersions = require('./VersionLocation')
 const AddonToc = require('./AddonToc')
 
@@ -52,17 +53,8 @@ const getDirectories = (source) =>
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
 
-function FetchInstalledAddons() {
-  const versions = GetClientVersions()
-  let result = {}
-  Object.keys(versions).forEach((client) => {
-    if (versions[client].installed) {
-      result[client] = getDirectories(versions[client].path).map((addon) =>
-        AddonToc(versions[client].path, addon)
-      )
-    }
-  })
-  return result
+function FetchInstalledAddons(client) {
+  return getDirectories(client.path).map((addon) => { return { ...AddonToc(client.path, addon), basePath: client.path }})
 }
 
 module.exports = { FetchAddons, FetchInstalledAddons }

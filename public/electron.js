@@ -1,11 +1,16 @@
 const { app, BrowserWindow, Tray, ipcMain } = require('electron')
 const path = require('path')
+const fs = require('fs')
 const isDev = require('electron-is-dev')
 const storage = require('electron-json-storage-sync')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const { FetchAddons, FetchInstalledAddons } = require('./TukuiService')
 const GetClientVersions = require('./VersionLocation')
+const https = require('https')
+const { tmpdir } = require('os')
+const crypto = require('crypto')
+const extract = require('extract-zip')
 
 const clientUpdateInterval = 1000 * 60 * 10
 const updateAddonInterval = 1000 * 60
@@ -35,6 +40,7 @@ const mainWindowStartup = () => {
   createMainWindow(openHidden)
 }
 
+//#region Addon functions
 const updateAddonInfo = async (repeat = true) => {
   try {
     const versions = GetClientVersions()
@@ -42,10 +48,29 @@ const updateAddonInfo = async (repeat = true) => {
     for (var client of Object.keys(versions)) {
       result[client] = { installed: versions[client].installed }
       if (!versions[client].installed) continue
+
+      let installedAddons = FetchInstalledAddons(versions[client])
       result[client] = {
         ...result[client],
         ...(await FetchAddons(versions[client].provider)),
       }
+      result[client].elvui = {
+        ...result[client].elvui,
+        basePath: versions[client].path,
+        localAddon: installedAddons.filter((addon) => addon.name === 'ElvUI')[0],
+      }
+      result[client].tukui = {
+        ...result[client].tukui,
+        basePath: versions[client].path,
+        localAddon: installedAddons.filter((addon) => addon.name === 'Tukui')[0],
+      }
+      result[client].all = result[client].all.map((addon) => {
+        return {
+          ...addon,
+          basePath: versions[client].path,
+          localAddon: installedAddons.filter((a) => a.name === addon.name)[0],
+        }
+      })
     }
     lastAddonPull = result
     if (mainWindow) mainWindow.webContents.send('update-addons', lastAddonPull)
@@ -53,6 +78,36 @@ const updateAddonInfo = async (repeat = true) => {
   if (clientUpdateTimeout) clearTimeout(clientUpdateTimeout)
   clientUpdateTimeout = setTimeout(updateAddonInfo, updateAddonInterval)
 }
+const installAddon = async (addon) => {
+  if (addon.localAddon) {
+    let paths = [path.join(addon.basePath, addon.name)]
+    if (addon.localAddon['X-Tukui-ProjectFolders'])
+      paths = addon.localAddon['X-Tukui-ProjectFolders'].split(',').map((folder) => path.join(addon.basePath, folder.trim()))
+    //pre-install cleanup
+    paths.forEach((path) => fs.renameSync(path, path + '-bak'))
+  }
+
+  const filePath = path.join(tmpdir(), crypto.randomBytes(16).toString('hex') + '.zip')
+  await downloadAddon(addon.url, filePath)
+  await extract(filePath, { dir: addon.basePath })
+  paths.forEach((path) => fs.rmdirSync(path + '-bak', { recursive: true }))
+}
+const downloadAddon = (url, filePath) => {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(filePath)
+    https
+      .get(url, function (response) {
+        response.pipe(file)
+        file.on('finish', function () {
+          file.close(() => {
+            resolve()
+          })
+        })
+      })
+      .on('error', (err) => reject(err))
+  })
+}
+//#endregion
 
 //#region Functions
 const setOpenAtLogin = () => {
@@ -84,6 +139,18 @@ ipcMain.on('main', (event, eventName, arg1) => {
   } else if (eventName === 'close_tray') {
     trayWindow?.destroy()
     tray?.destroy()
+    if (!mainWindow?.isVisible()) {
+      mainWindow.destroy()
+      app.quit()
+    }
+  }
+})
+ipcMain.handle('install_addon', async (event, addon) => {
+  try {
+    await installAddon(addon)
+    return true
+  } catch {
+    return false
   }
 })
 //#endregion
