@@ -22,17 +22,14 @@ const startup = () => {
   checkForClientUpdates()
 }
 const mainWindowStartup = () => {
-  if (app.getLoginItemSettings().wasOpenedAtLogin) {
-    app.dock.hide()
-    return
-  }
   const result = storage.has('doing-background-update')
+  let openHidden = app.getLoginItemSettings().wasOpenedAtLogin
   if (result.status && result.data) {
     storage.remove('doing-background-update')
     app.dock.hide()
-    return
+    openHidden = true
   }
-  createMainWindow()
+  createMainWindow(openHidden)
 }
 
 const updateAddonInfo = async (repeat = true) => {
@@ -48,8 +45,7 @@ const updateAddonInfo = async (repeat = true) => {
       }
     }
     lastAddonPull = result
-    if (mainWindow?.isVisible())
-      mainWindow.webContents.send('update-addons', lastAddonPull)
+    if (mainWindow?.isVisible()) mainWindow.webContents.send('update-addons', lastAddonPull)
   } catch (err) {}
   if (clientUpdateTimeout) clearTimeout(clientUpdateTimeout)
   clientUpdateTimeout = setTimeout(updateAddonInfo, updateAddonInterval)
@@ -90,29 +86,27 @@ ipcMain.on('main', (event, eventName, arg1) => {
 
 //#region Main Window
 const allWindowsClosed = () => app.quit()
-const mainWindowClosed = () => {
-  mainWindow = null
+const mainWindowClosed = (event) => {
+  event.preventDefault()
   const autoUpdate = storage.get('auto-update')
-  console.log(autoUpdate)
-  if (
-    autoUpdate.status &&
-    (autoUpdate.data === true || autoUpdate.data.checked)
-  )
+  if (autoUpdate.status && (autoUpdate.data === true || autoUpdate.data.checked || autoUpdate.data === undefined)) {
+    mainWindow.hide()
     app.dock.hide()
-  else if (autoUpdate.status && !autoUpdate.data) app.dock.hide()
-  else {
+  } else {
     app.quit()
   }
 }
 
-const createMainWindow = () => {
-  if (mainWindow != null) {
+const createMainWindow = (openHidden = false) => {
+  if (openHidden) app.dock.hide()
+  if (mainWindow != null && !openHidden) {
     mainWindow.show()
     return
   }
   mainWindow = new BrowserWindow({
     width: 1550,
     height: 900,
+    show: !openHidden,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
@@ -122,12 +116,8 @@ const createMainWindow = () => {
     },
     backgroundColor: '#000',
   })
-  mainWindow.loadURL(
-    isDev
-      ? 'http://localhost:3000'
-      : `file://${path.join(__dirname, '../build/index.html')}`
-  )
-  mainWindow.on('closed', mainWindowClosed)
+  mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`)
+  mainWindow.on('close', mainWindowClosed)
   mainWindow.on('ready-to-show', () => {
     updateAddonInfo()
   })
@@ -170,11 +160,7 @@ const createTrayWindow = () => {
       enableRemoteModule: true,
     },
   })
-  trayWindow.loadURL(
-    isDev
-      ? 'http://localhost:3000/tray.html'
-      : `file://${path.join(__dirname, '../build/tray.html')}`
-  )
+  trayWindow.loadURL(isDev ? 'http://localhost:3000/tray.html' : `file://${path.join(__dirname, '../build/tray.html')}`)
   trayWindow.on('blur', () => trayWindow.hide())
 }
 
@@ -196,9 +182,7 @@ const showTrayWindow = () => {
 const getTrayWindowPosition = () => {
   const windowBounds = trayWindow.getBounds()
   const trayBounds = tray.getBounds()
-  const x = Math.round(
-    trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
-  )
+  const x = Math.round(trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2)
   const y = Math.round(trayBounds.y + trayBounds.height + 4)
   return { x: x, y: y }
 }
@@ -224,16 +208,14 @@ app.on('ready-to-show', () => {
 //#region AutoUpdater events
 autoUpdater.on('update-available', () => {
   try {
-    if (mainWindow && mainWindow?.isVisible())
-      mainWindow.webContents.send('update-available')
+    if (mainWindow && mainWindow?.isVisible()) mainWindow.webContents.send('update-available')
     else autoUpdater.downloadUpdate()
   } catch (err) {}
 })
 
 autoUpdater.on('update-downloaded', () => {
   try {
-    if (mainWindow && mainWindow?.isVisible())
-      mainWindow.webContents.send('update-downloaded')
+    if (mainWindow && mainWindow?.isVisible()) mainWindow.webContents.send('update-downloaded')
     else {
       storage.set('doing-background-update', true)
       app.setLoginItemSettings({
