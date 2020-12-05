@@ -10,6 +10,8 @@ const GetClientVersions = require('./VersionLocation')
 const clientUpdateInterval = 1000 * 60 * 10
 const updateAddonInterval = 1000 * 60
 
+let updating = false
+
 log.transports.file.level = 'info'
 let mainWindow, trayWindow, tray, lastAddonPull, clientUpdateTimeout
 
@@ -77,6 +79,7 @@ ipcMain.on('main', (event, eventName, arg1) => {
   } else if (eventName === 'update_requested') {
     autoUpdater.downloadUpdate()
   } else if (eventName === 'update_install') {
+    updating = true
     autoUpdater.quitAndInstall()
   } else if (eventName === 'close_tray') {
     trayWindow?.destroy()
@@ -88,7 +91,8 @@ ipcMain.on('main', (event, eventName, arg1) => {
 //#region Main Window
 const allWindowsClosed = () => app.quit()
 const mainWindowClosed = (event) => {
-  event.preventDefault()
+  if (!updating) event.preventDefault()
+  else return
   const autoUpdate = storage.get('auto-update')
   if (autoUpdate.status && (autoUpdate.data === true || autoUpdate.data.checked || autoUpdate.data === undefined)) {
     mainWindow.hide()
@@ -221,6 +225,7 @@ autoUpdater.on('update-downloaded', () => {
       app.setLoginItemSettings({
         openAsHidden: true,
       })
+      updating = true
       autoUpdater.quitAndInstall()
     }
   } catch (err) {}
