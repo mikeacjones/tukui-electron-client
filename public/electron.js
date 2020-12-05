@@ -11,6 +11,7 @@ const https = require('https')
 const { tmpdir } = require('os')
 const crypto = require('crypto')
 const extract = require('extract-zip')
+const AddonToc = require('./AddonToc')
 
 const clientUpdateInterval = 1000 * 60 * 10
 const updateAddonInterval = 1000 * 60
@@ -79,18 +80,31 @@ const updateAddonInfo = async (repeat = true) => {
   clientUpdateTimeout = setTimeout(updateAddonInfo, updateAddonInterval)
 }
 const installAddon = async (addon) => {
+  let paths = [path.join(addon.basePath, addon.name)]
   if (addon.localAddon) {
-    let paths = [path.join(addon.basePath, addon.name)]
     if (addon.localAddon['X-Tukui-ProjectFolders'])
       paths = addon.localAddon['X-Tukui-ProjectFolders'].split(',').map((folder) => path.join(addon.basePath, folder.trim()))
     //pre-install cleanup
-    paths.forEach((path) => fs.renameSync(path, path + '-bak'))
+    paths.forEach((path) => {
+      if (!fs.existsSync(path)) return
+      if (fs.existsSync(path + '-bak')) fs.rmdirSync(path + '-bak', { recursive: true })
+      fs.renameSync(path, path + '-bak')
+    })
   }
 
-  const filePath = path.join(tmpdir(), crypto.randomBytes(16).toString('hex') + '.zip')
-  await downloadAddon(addon.url, filePath)
-  await extract(filePath, { dir: addon.basePath })
-  paths.forEach((path) => fs.rmdirSync(path + '-bak', { recursive: true }))
+  try {
+    const filePath = path.join(tmpdir(), crypto.randomBytes(16).toString('hex') + '.zip')
+    await downloadAddon(addon.url, filePath)
+    await extract(filePath, { dir: addon.basePath })
+
+    if (addon.localAddon) paths.forEach((path) => fs.rmdirSync(path + '-bak', { recursive: true }))
+  } catch (err) {
+    if (addon.localAddon)
+      paths.forEach((path) => {
+        if (fs.existsSync(path)) fs.rmdirSync(path, { recursive: true })
+        fs.renameSync(path + '-bak', path)
+      })
+  }
 }
 const downloadAddon = (url, filePath) => {
   return new Promise((resolve, reject) => {
@@ -148,7 +162,7 @@ ipcMain.on('main', (event, eventName, arg1) => {
 ipcMain.handle('install_addon', async (event, addon) => {
   try {
     await installAddon(addon)
-    return true
+    return AddonToc(addon.basePath, addon.name)
   } catch {
     return false
   }

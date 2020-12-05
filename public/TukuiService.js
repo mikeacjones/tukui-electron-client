@@ -54,7 +54,7 @@ const getDirectories = (source) =>
     .map((dirent) => dirent.name)
 
 function FetchInstalledAddons(client) {
-  return getDirectories(client.path).map((addon) => { return { ...AddonToc(client.path, addon), basePath: client.path }})
+  return getDirectories(client.path).map((addon) => { return { ...AddonToc(client.path, addon) }})
 }
 
 module.exports = { FetchAddons, FetchInstalledAddons }
