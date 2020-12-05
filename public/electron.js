@@ -21,6 +21,7 @@ const startup = () => {
   setOpenAtLogin()
   checkForClientUpdates()
 }
+
 const mainWindowStartup = () => {
   const result = storage.has('doing-background-update')
   let openHidden = app.getLoginItemSettings().wasOpenedAtLogin
@@ -45,7 +46,7 @@ const updateAddonInfo = async (repeat = true) => {
       }
     }
     lastAddonPull = result
-    if (mainWindow?.isVisible()) mainWindow.webContents.send('update-addons', lastAddonPull)
+    if (mainWindow) mainWindow.webContents.send('update-addons', lastAddonPull)
   } catch (err) {}
   if (clientUpdateTimeout) clearTimeout(clientUpdateTimeout)
   clientUpdateTimeout = setTimeout(updateAddonInfo, updateAddonInterval)
@@ -93,6 +94,7 @@ const mainWindowClosed = (event) => {
     mainWindow.hide()
     app.dock.hide()
   } else {
+    mainWindow.destroy()
     app.quit()
   }
 }
@@ -118,9 +120,7 @@ const createMainWindow = (openHidden = false) => {
   })
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`)
   mainWindow.on('close', mainWindowClosed)
-  mainWindow.on('ready-to-show', () => {
-    updateAddonInfo()
-  })
+  mainWindow.on('ready-to-show', () => {})
   mainWindow.on('show', () => {})
 }
 
@@ -129,8 +129,11 @@ const toggleMainWindow = () => {
     createMainWindow()
     app.dock.show()
   } else if (mainWindow.isVisible()) {
-    mainWindow.destroy()
-    mainWindow = null
+    if (!trayWindow || trayWindow == null) {
+      app.quit()
+      return
+    }
+    mainWindow.hide()
     app.dock.hide()
   } else {
     mainWindow.show()
@@ -199,10 +202,7 @@ app.on('activate', () => {
   }
   app.dock.show()
 })
-app.on('ready-to-show', () => {
-  log.debug('ready-to-show')
-  autoUpdater.logger = log
-})
+app.on('ready-to-show', () => {})
 //#endregion
 
 //#region AutoUpdater events
