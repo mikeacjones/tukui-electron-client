@@ -31,7 +31,7 @@ export default function LargeAddon(props) {
 
   useEffect(() => {
     if (props.addon.localAddon !== localAddon) setLocalAddon(props.addon.localAddon)
-  }, [props.addon.localAddon])
+  }, [localAddon, props.addon.localAddon])
 
   return (
     <div className="LargeAddon">
@@ -46,7 +46,7 @@ export default function LargeAddon(props) {
             <div className="LargeAddon-info-available">Latest Version: {addon.version}</div>
           </div>
           <div className="LargeAddon-button">
-            <Button variant="outlined" color={installButtonColor} disabled={disabled} onClick={installAddon} disabled={installing}>
+            <Button variant="outlined" color={installButtonColor} disabled={disabled || installing} onClick={installAddon}>
               {installing ? 'Installing...' : installButtonText}
             </Button>
           </div>
