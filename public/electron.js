@@ -46,7 +46,8 @@ const updateAddonInfo = async (repeat = true) => {
   try {
     const versions = GetClientVersions()
     let result = {}
-    for (var client of Object.keys(versions)) {
+    for (var clientKey of Object.keys(versions)) {
+      const client = clientKey
       result[client] = { installed: versions[client].installed }
       if (!versions[client].installed) continue
 
