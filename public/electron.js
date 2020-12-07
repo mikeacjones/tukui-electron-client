@@ -250,6 +250,10 @@ const createTrayWindow = () => {
   })
   trayWindow.loadURL(isDev ? 'http://localhost:3000/tray.html' : `file://${path.join(__dirname, '../build/tray.html')}`)
   trayWindow.on('blur', () => trayWindow.hide())
+  trayWindow.on('close', () => {
+    tray.destroy()
+    if (mainWindow && !mainWindow.isVisible()) app.quit()
+  })
 }
 
 const toggleTrayWindow = () => {
